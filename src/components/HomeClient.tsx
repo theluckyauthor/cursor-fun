@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Canvas } from "./Canvas";
 import { Contributors } from "./Contributors";
-import { Marquee } from "./Marquee";
 import { QRShare } from "./QRShare";
 import { RequestForm } from "./RequestForm";
+import { ShippedBanner } from "./ShippedBanner";
 import { SparkleCursor } from "./SparkleCursor";
 import { Timeline } from "./Timeline";
 import Link from "next/link";
@@ -16,166 +16,95 @@ interface HomeClientProps {
   siteUrl: string;
 }
 
-type DrawerTab = "timeline" | "contributors";
+type HeaderTab = "canvas" | "timeline" | "contributors";
+
+const TABS: { id: HeaderTab; label: string }[] = [
+  { id: "canvas", label: "Canvas" },
+  { id: "timeline", label: "Timeline" },
+  { id: "contributors", label: "Contributors" },
+];
 
 export function HomeClient({ state, siteUrl }: HomeClientProps) {
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerTab, setDrawerTab] = useState<DrawerTab>("timeline");
+  const [activeTab, setActiveTab] = useState<HeaderTab>("canvas");
   const [formOpen, setFormOpen] = useState(false);
 
-  const ideaCount = state.contributors.reduce(
-    (sum, c) => sum + c.prompts.length,
-    0,
-  );
-  const recentIdeas = state.timeline
-    .filter((t) => t.request)
-    .sort((a, b) => b.version - a.version)
-    .map((t) => (t.contributor ? `${t.request} — ${t.contributor}` : t.request!))
-    .slice(0, 12);
-
-  function openDrawer(tab: DrawerTab) {
-    setDrawerTab(tab);
-    setDrawerOpen(true);
-  }
-
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex h-dvh flex-col overflow-hidden">
       <SparkleCursor />
 
-      <header className="flex items-center justify-between gap-4 px-4 py-4 sm:px-8">
-        <div>
-          <h1 className="wobble-hover inline-block font-display text-2xl font-black tracking-tight sm:text-3xl">
-            {state.title}
-          </h1>
-          <p className="text-sm text-canvas-muted">{state.tagline}</p>
-        </div>
-        <div className="relative flex items-center gap-3">
-          <Link
-            href="/about"
-            className="hidden rounded-full border border-white/15 px-3 py-1.5 text-xs font-medium transition hover:bg-white/5 sm:inline"
-          >
-            About
-          </Link>
-          <span className="hidden rounded-full bg-white/5 px-3 py-1 text-xs font-medium text-canvas-muted sm:inline">
+      <header className="z-20 flex shrink-0 items-center gap-3 border-b border-white/10 bg-canvas-bg/90 px-3 py-2.5 backdrop-blur-md sm:gap-4 sm:px-5">
+        <h1 className="shrink-0 font-display text-lg font-black tracking-tight sm:text-xl">
+          {state.title}
+        </h1>
+
+        <nav
+          className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto"
+          aria-label="Site sections"
+        >
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:text-sm ${
+                activeTab === tab.id
+                  ? "bg-canvas-accent/20 text-canvas-accent"
+                  : "text-canvas-muted hover:bg-white/5 hover:text-canvas-text"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="hidden rounded-full bg-white/5 px-2 py-0.5 text-xs font-medium text-canvas-muted sm:inline">
             v{state.version}
           </span>
           <QRShare url={siteUrl} />
+          <Link
+            href="/about"
+            className="hidden rounded-full border border-white/15 px-2.5 py-1 text-xs font-medium transition hover:bg-white/5 sm:inline"
+          >
+            About
+          </Link>
         </div>
       </header>
 
-      {recentIdeas.length > 0 && <Marquee items={recentIdeas} />}
-
-      <main className="flex flex-1 flex-col gap-4 px-4 pb-32 pt-4 sm:px-8">
-        <Canvas
-          elements={state.elements}
-          background={state.theme.background}
-          backgroundSecondary={state.theme.backgroundSecondary}
-        />
-
-        <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-canvas-muted">
-          <p>
-            <span className="font-display text-lg font-black text-canvas-accent">
-              {ideaCount}
-            </span>{" "}
-            {ideaCount === 1 ? "idea has" : "ideas have"} shaped this site
-            {state.contributors.length > 0 && (
-              <>
-                {" "}
-                from{" "}
-                <span className="font-bold text-canvas-text">
-                  {state.contributors.length}
-                </span>{" "}
-                {state.contributors.length === 1 ? "human" : "humans"}
-              </>
+      <main className="relative min-h-0 flex-1">
+        {activeTab === "canvas" ? (
+          <>
+            <ShippedBanner
+              contributors={state.contributors}
+              onViewContributors={() => setActiveTab("contributors")}
+            />
+            <Canvas
+              elements={state.elements}
+              background={state.theme.background}
+              backgroundSecondary={state.theme.backgroundSecondary}
+            />
+          </>
+        ) : (
+          <div className="h-full overflow-y-auto px-4 py-6 sm:px-8">
+            {activeTab === "timeline" ? (
+              <Timeline entries={state.timeline} />
+            ) : (
+              <Contributors contributors={state.contributors} />
             )}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          <button
-            type="button"
-            onClick={() => openDrawer("timeline")}
-            className="rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium transition hover:-translate-y-0.5 hover:bg-white/10"
-          >
-            📜 Timeline
-          </button>
-          <button
-            type="button"
-            onClick={() => openDrawer("contributors")}
-            className="rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium transition hover:-translate-y-0.5 hover:bg-white/10"
-          >
-            🪶 Contributors
-          </button>
-          <Link
-            href="/about"
-            className="col-span-2 rounded-xl border border-white/10 bg-white/5 py-3 text-center text-sm font-medium transition hover:-translate-y-0.5 hover:bg-white/10 sm:col-span-1"
-          >
-            👋 About
-          </Link>
-        </div>
-      </main>
-
-      <button
-        type="button"
-        onClick={() => setFormOpen(true)}
-        className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2 rounded-full bg-gradient-to-r from-canvas-accent to-canvas-accent-2 px-7 py-3.5 text-sm font-black text-white shadow-lg shadow-canvas-accent/30 transition hover:-translate-y-0.5 hover:shadow-xl active:scale-95"
-      >
-        ✦ Whisper an idea
-      </button>
-
-      {drawerOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm"
-          onClick={() => setDrawerOpen(false)}
-        >
-          <div
-            className="drawer-enter max-h-[78vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-white/10 bg-canvas-surface"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="sticky top-0 flex items-center justify-between border-b border-white/10 bg-canvas-surface px-6 py-4">
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setDrawerTab("timeline")}
-                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-                    drawerTab === "timeline"
-                      ? "bg-canvas-accent/20 text-canvas-accent"
-                      : "text-canvas-muted hover:text-canvas-text"
-                  }`}
-                >
-                  Timeline
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDrawerTab("contributors")}
-                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-                    drawerTab === "contributors"
-                      ? "bg-canvas-accent/20 text-canvas-accent"
-                      : "text-canvas-muted hover:text-canvas-text"
-                  }`}
-                >
-                  Contributors
-                </button>
-              </div>
-              <button
-                type="button"
-                onClick={() => setDrawerOpen(false)}
-                className="rounded-full p-2 text-canvas-muted transition hover:bg-white/5 hover:text-canvas-text"
-                aria-label="Close"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="p-6">
-              {drawerTab === "timeline" ? (
-                <Timeline entries={state.timeline} />
-              ) : (
-                <Contributors contributors={state.contributors} />
-              )}
-            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {activeTab === "canvas" && (
+          <button
+            type="button"
+            onClick={() => setFormOpen(true)}
+            className="fixed bottom-6 right-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-canvas-accent to-canvas-accent-2 text-2xl font-black text-white shadow-lg shadow-canvas-accent/40 transition hover:scale-105 hover:shadow-xl active:scale-95"
+            aria-label="Suggest an idea"
+          >
+            +
+          </button>
+        )}
+      </main>
 
       {formOpen && (
         <div

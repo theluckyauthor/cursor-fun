@@ -1,4 +1,5 @@
 import type { CanvasElement, ElementType } from "@/lib/types";
+import { ExperienceRenderer } from "./experiences/ExperienceRenderer";
 
 const animationClass: Record<
   NonNullable<CanvasElement["animation"]>,
@@ -157,6 +158,16 @@ function renderElement(element: CanvasElement) {
       );
     case "pixel-snake":
       return renderPixelSnake(element, style, anim);
+    case "widget":
+    case "experience":
+      return (
+        <div key={element.id} className={`absolute ${anim}`} style={style}>
+          <ExperienceRenderer
+            experienceId={element.content}
+            size={element.size}
+          />
+        </div>
+      );
     case "color":
       return null;
     default: {
@@ -178,18 +189,18 @@ export function Canvas({
 
   return (
     <div
-      className="relative min-h-[56vh] flex-1 overflow-hidden rounded-3xl ring-1 ring-black/5 shadow-[0_30px_90px_-24px_rgba(0,0,0,0.55)]"
+      className="relative h-full w-full overflow-hidden"
       style={{
         background: `radial-gradient(130% 120% at 50% 0%, ${backgroundSecondary} 0%, ${background} 72%)`,
       }}
     >
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          boxShadow:
-            "inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 1px rgba(0,0,0,0.04)",
-        }}
-      />
+      {visibleElements.length === 0 && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <p className="font-display text-2xl font-bold text-canvas-text/20 sm:text-4xl">
+            blank canvas
+          </p>
+        </div>
+      )}
       {visibleElements.map(renderElement)}
     </div>
   );

@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { buildAgentPrompt } from "@/lib/agent-prompt";
-import type { PendingRequest } from "@/lib/types";
+import { buildAgentPrompt, buildNotifyMessage } from "@/lib/agent-prompt";
+import type { Contributor, ContributorPrompt, PendingRequest, TimelineEntry } from "@/lib/types";
 
 interface StudioClientProps {
   version: number;
   requests: PendingRequest[];
+  siteUrl: string;
+  contributors: Contributor[];
+  timeline: TimelineEntry[];
 }
 
 const ADMIN_TOKEN_KEY = "open-canvas:admin-token";
@@ -20,8 +23,16 @@ function formatTime(iso: string): string {
   });
 }
 
-export function StudioClient({ version, requests }: StudioClientProps) {
+export function StudioClient({
+  version,
+  requests,
+  siteUrl,
+  contributors,
+  timeline,
+}: StudioClientProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [notifyCopiedId, setNotifyCopiedId] = useState<string | null>(null);
+  const [refinements, setRefinements] = useState<Record<string, string>>({});
   const [adminToken, setAdminToken] = useState("");
   const [confirmReset, setConfirmReset] = useState(false);
   const [resetState, setResetState] = useState<
@@ -34,9 +45,23 @@ export function StudioClient({ version, requests }: StudioClientProps) {
   }, []);
 
   async function copyPrompt(request: PendingRequest) {
-    await navigator.clipboard.writeText(buildAgentPrompt(request));
+    await navigator.clipboard.writeText(
+      buildAgentPrompt(request, refinements[request.id]),
+    );
     setCopiedId(request.id);
     setTimeout(() => setCopiedId(null), 2500);
+  }
+
+  async function copyNotify(
+    request: PendingRequest,
+    prompt: ContributorPrompt,
+  ) {
+    await navigator.clipboard.writeText(
+      buildNotifyMessage(request, prompt, siteUrl),
+    );
+    const key = prompt.version != null ? `v${prompt.version}` : request.id;
+    setNotifyCopiedId(key);
+    setTimeout(() => setNotifyCopiedId(null), 2500);
   }
 
   async function handleReset() {
@@ -67,6 +92,30 @@ export function StudioClient({ version, requests }: StudioClientProps) {
     (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime(),
   );
 
+  const recentShipments = [...timeline]
+    .filter((t) => t.contributor && t.request)
+    .sort((a, b) => b.version - a.version)
+    .slice(0, 8);
+
+  function promptForShipment(entry: TimelineEntry): ContributorPrompt | undefined {
+    if (!entry.contributor) return undefined;
+    const contributor = contributors.find(
+      (c) =>
+        c.name.trim().toLowerCase() === entry.contributor!.trim().toLowerCase(),
+    );
+    return contributor?.prompts.find((p) => p.version === entry.version);
+  }
+
+  function notifyRequestFor(entry: TimelineEntry): PendingRequest {
+    return {
+      id: `shipped-${entry.version}`,
+      name: entry.contributor!,
+      idea: entry.request!,
+      submittedAt: entry.timestamp,
+      status: "done",
+    };
+  }
+
   return (
     <div className="min-h-dvh bg-canvas-bg px-4 py-6">
       <header className="mb-6">
@@ -82,10 +131,10 @@ export function StudioClient({ version, requests }: StudioClientProps) {
       <section className="mb-6 rounded-xl border border-white/10 bg-white/5 p-4">
         <h2 className="font-display text-sm font-bold">Cafe-day workflow</h2>
         <ol className="mt-2 list-inside list-decimal space-y-1 text-sm text-canvas-muted">
-          <li>Someone submits an idea on the site</li>
-          <li>Tap &ldquo;Copy for Cursor&rdquo; below</li>
-          <li>Paste into Cursor Cloud Agent on your phone</li>
-          <li>Wait ~60s for deploy — canvas updates!</li>
+          <li>Someone submits a rough idea (neal.fun, desktop, myspace — anything)</li>
+          <li>Talk it through — add a refined direction below if helpful</li>
+          <li>Tap &ldquo;Copy for Cursor&rdquo; and paste into Cloud Agent</li>
+          <li>After deploy, copy the notify message to their contact</li>
         </ol>
       </section>
 
@@ -128,18 +177,87 @@ export function StudioClient({ version, requests }: StudioClientProps) {
                     </time>
                   </div>
                 </div>
+
+                <label className="mt-3 block">
+                  <span className="text-xs font-medium text-canvas-muted">
+                    Refined direction (optional)
+                  </span>
+                  <textarea
+                    value={refinements[req.id] ?? ""}
+                    onChange={(e) =>
+                      setRefinements((prev) => ({
+                        ...prev,
+                        [req.id]: e.target.value,
+                      }))
+                    }
+                    placeholder="A neal.fun-style clicker with confetti, centered on the canvas..."
+                    rows={2}
+                    className="mt-1 w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-canvas-text placeholder:text-canvas-muted/50 outline-none focus:border-canvas-accent/50"
+                  />
+                </label>
+
                 <button
                   type="button"
                   onClick={() => copyPrompt(req)}
                   className="mt-3 w-full rounded-full bg-canvas-accent py-2.5 text-sm font-semibold text-white transition hover:brightness-110 active:scale-[0.98]"
                 >
-                  {copiedId === req.id ? "Copied! Paste in Cursor →" : "Copy for Cursor"}
+                  {copiedId === req.id
+                    ? "Copied! Paste in Cursor →"
+                    : "Copy for Cursor"}
                 </button>
               </div>
             ))}
           </div>
         )}
       </section>
+
+      {recentShipments.length > 0 && (
+        <section className="mt-8">
+          <h2 className="mb-3 font-display text-lg font-bold">
+            Shipped — notify them
+          </h2>
+          <p className="mb-3 text-sm text-canvas-muted">
+            Copy a message to paste into their email or DM. Visitors also see an
+            in-app banner when they return.
+          </p>
+          <div className="space-y-3">
+            {recentShipments.map((entry) => {
+              const prompt = promptForShipment(entry);
+              const notifyKey = `v${entry.version}`;
+              return (
+                <div
+                  key={entry.version}
+                  className="rounded-xl border border-white/10 bg-canvas-surface p-4"
+                >
+                  <div className="flex items-baseline justify-between gap-2">
+                    <p className="font-display font-bold">{entry.contributor}</p>
+                    <span className="text-xs text-canvas-muted">v{entry.version}</span>
+                  </div>
+                  <p className="mt-1 text-sm font-semibold text-canvas-accent">
+                    {prompt?.shippedTitle ?? entry.title}
+                  </p>
+                  <p className="mt-1 text-sm text-canvas-muted">
+                    &ldquo;{entry.request}&rdquo;
+                  </p>
+                  {prompt && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        copyNotify(notifyRequestFor(entry), prompt)
+                      }
+                      className="mt-3 w-full rounded-full border border-canvas-accent/40 py-2.5 text-sm font-semibold text-canvas-accent transition hover:bg-canvas-accent/10"
+                    >
+                      {notifyCopiedId === notifyKey
+                        ? "Notify message copied!"
+                        : "Copy notify message"}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <section className="mt-8 rounded-xl border border-red-500/20 bg-red-500/5 p-4">
         <h2 className="font-display text-sm font-bold text-red-300">

@@ -103,13 +103,26 @@ function ContributorRow({
           {contributor.prompts.map((p, i) => (
             <li
               key={`${p.signedAt}-${i}`}
-              className="rounded-xl bg-white/5 px-3 py-2 text-sm"
+              className="rounded-xl bg-white/5 px-3 py-2.5 text-sm"
             >
-              <span className="text-canvas-text/90">&ldquo;{p.idea}&rdquo;</span>
+              <p className="text-canvas-text/90">&ldquo;{p.idea}&rdquo;</p>
+              {p.shippedTitle && (
+                <p className="mt-1.5 font-display font-bold text-canvas-accent">
+                  → {p.shippedTitle}
+                </p>
+              )}
+              {p.shippedNote && (
+                <p className="mt-1 text-canvas-muted">{p.shippedNote}</p>
+              )}
+              {p.refinedIdea && p.refinedIdea !== p.idea && (
+                <p className="mt-1 text-xs text-canvas-muted/70">
+                  Refined to: {p.refinedIdea}
+                </p>
+              )}
               {p.version != null && (
-                <span className="ml-2 text-xs text-canvas-muted">
-                  → shipped in v{p.version}
-                </span>
+                <p className="mt-1 text-xs text-canvas-muted">
+                  Shipped in v{p.version}
+                </p>
               )}
             </li>
           ))}

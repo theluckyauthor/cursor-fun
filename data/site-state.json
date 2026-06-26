@@ -1,7 +1,7 @@
 {
   "version": 3,
   "title": "Open Canvas",
-  "tagline": "Scan. Suggest. Shape this site together.",
+  "tagline": "Rough ideas welcome. We refine, build, and tell you what shipped.",
   "theme": {
     "background": "#eef5f0",
     "backgroundSecondary": "#ffffff",
@@ -63,6 +63,9 @@
       "prompts": [
         {
           "idea": "A snake like pixel",
+          "refinedIdea": "A retro pixel snake slithering across the canvas",
+          "shippedTitle": "Pixel snake",
+          "shippedNote": "We turned your snake idea into a floating 8-bit pixel snake with a little eye — classic arcade vibes.",
           "version": 3,
           "signedAt": "2026-06-26T23:11:42.030Z"
         }

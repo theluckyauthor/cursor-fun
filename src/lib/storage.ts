@@ -135,6 +135,74 @@ async function loadSiteState(): Promise<SiteState> {
   return getSiteState();
 }
 
+async function saveSiteState(state: SiteState, message: string): Promise<void> {
+  if (githubConfig()) {
+    await writeJsonToGitHub(STATE_PATH, state, message);
+  } else {
+    writeSiteState(state);
+  }
+}
+
+async function savePendingRequests(
+  data: PendingRequestsFile,
+  message: string,
+): Promise<void> {
+  if (githubConfig()) {
+    await writeJsonToGitHub(PENDING_PATH, data, message);
+  } else {
+    writePendingRequests(data);
+  }
+}
+
+/**
+ * Removes a single element from the canvas (operator moderation). Bumps the
+ * version and logs the removal so the change deploys like any other edit.
+ */
+export async function removeElement(elementId: string): Promise<SiteState> {
+  const current = await loadSiteState();
+  const element = current.elements.find((e) => e.id === elementId);
+  if (!element) {
+    throw new Error("Element not found");
+  }
+
+  const nextVersion = current.version + 1;
+  const next: SiteState = {
+    ...current,
+    version: nextVersion,
+    elements: current.elements.filter((e) => e.id !== elementId),
+    timeline: [
+      ...current.timeline,
+      {
+        version: nextVersion,
+        title: "Element removed",
+        description: `An element ("${elementId}") was removed by the operator.`,
+        timestamp: new Date().toISOString(),
+      },
+    ],
+  };
+
+  await saveSiteState(next, `Remove element ${elementId} (v${nextVersion})`);
+  return next;
+}
+
+/** Rejects a pending request without touching the canvas. */
+export async function rejectRequest(
+  requestId: string,
+): Promise<PendingRequestsFile> {
+  const data = await loadPendingRequests();
+  const exists = data.requests.some((r) => r.id === requestId);
+  if (!exists) {
+    throw new Error("Request not found");
+  }
+
+  const next: PendingRequestsFile = {
+    requests: data.requests.filter((r) => r.id !== requestId),
+  };
+
+  await savePendingRequests(next, `Reject request ${requestId}`);
+  return next;
+}
+
 /**
  * Clears the canvas back to the immaculate blank state while preserving the
  * timeline history and contributor wall. Bumps the version and logs the reset.

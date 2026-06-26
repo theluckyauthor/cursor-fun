@@ -17,6 +17,7 @@ export default async function StudioPage() {
       siteUrl={siteUrl}
       contributors={state.contributors}
       timeline={state.timeline}
+      elements={state.elements}
     />
   );
 }

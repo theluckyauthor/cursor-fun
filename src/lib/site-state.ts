@@ -9,6 +9,14 @@ export function getSiteState(): SiteState {
   return JSON.parse(raw) as SiteState;
 }
 
+export function writeSiteState(state: SiteState): void {
+  writeFileSync(
+    join(dataDir, "site-state.json"),
+    JSON.stringify(state, null, 2) + "\n",
+    "utf-8",
+  );
+}
+
 export function getPendingRequests(): PendingRequestsFile {
   const raw = readFileSync(join(dataDir, "pending-requests.json"), "utf-8");
   return JSON.parse(raw) as PendingRequestsFile;

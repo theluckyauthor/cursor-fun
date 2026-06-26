@@ -100,9 +100,9 @@ export function RequestForm({ onClose }: RequestFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="p-6">
-      <h3 className="font-display text-2xl font-black">Whisper an idea</h3>
+      <h3 className="font-display text-2xl font-black">Suggest an idea</h3>
       <p className="mt-1 text-sm text-canvas-muted">
-        Anything goes — make it weird, make it yours.
+        Anything goes — a pixel snake, a calculator, a color change, whatever you want.
       </p>
 
       <label className="mt-5 block">
@@ -137,7 +137,7 @@ export function RequestForm({ onClose }: RequestFormProps) {
         <textarea
           value={idea}
           onChange={(e) => setIdea(e.target.value)}
-          placeholder="A cat that rains confetti when you tap it..."
+          placeholder="A calculator in the corner, a dancing cat, make it purple..."
           maxLength={280}
           required
           rows={3}

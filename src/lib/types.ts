@@ -1,9 +1,12 @@
+export type WidgetId = "calculator";
+
 export type ElementType =
   | "color"
   | "text"
   | "emoji"
   | "shape"
-  | "pixel-snake";
+  | "pixel-snake"
+  | "widget";
 
 export interface Position {
   x: number;

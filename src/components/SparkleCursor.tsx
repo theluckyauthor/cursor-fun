@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-const SPARKLES = ["✦", "✧", "·", "✺", "❉", "✨"];
-const COLORS = ["#ff6b9d", "#7b5cff", "#f5f0ff", "#ffd56b"];
+const SPARKLES = ["✦", "✧", "·", "✺"];
+const COLORS = ["#6d5efc", "#9b86ff", "#f4f3f8"];
 
 /**
  * Drops little fading sparkles behind the pointer. Skipped on touch / reduced

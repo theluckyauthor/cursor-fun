@@ -3,12 +3,12 @@
 @theme {
   --font-display: var(--font-syne);
   --font-body: var(--font-dm-sans);
-  --color-canvas-bg: #0f0a1a;
-  --color-canvas-surface: #1a1230;
-  --color-canvas-accent: #ff6b9d;
-  --color-canvas-accent-2: #7b5cff;
-  --color-canvas-text: #f5f0ff;
-  --color-canvas-muted: #9b8fb8;
+  --color-canvas-bg: #0a0a0c;
+  --color-canvas-surface: #141418;
+  --color-canvas-accent: #6d5efc;
+  --color-canvas-accent-2: #9b86ff;
+  --color-canvas-text: #f4f3f8;
+  --color-canvas-muted: #9a98a8;
 }
 
 @keyframes float {
@@ -47,15 +47,6 @@
   }
   50% {
     opacity: 0.7;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 200% center;
-  }
-  100% {
-    background-position: -200% center;
   }
 }
 
@@ -104,32 +95,6 @@
 
 .grain {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-}
-
-.marble-veins {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='900'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.006 0.018' numOctaves='5' seed='7'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 26 -13'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
-  background-size: 115% 115%;
-}
-
-@keyframes sheen {
-  0% {
-    transform: translateX(-120%) skewX(-18deg);
-  }
-  60%,
-  100% {
-    transform: translateX(220%) skewX(-18deg);
-  }
-}
-
-.canvas-sheen {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.55) 50%,
-    transparent 100%
-  );
-  width: 40%;
-  animation: sheen 9s ease-in-out infinite;
 }
 
 html {

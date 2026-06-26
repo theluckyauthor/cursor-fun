@@ -3,45 +3,45 @@
   "title": "Open Canvas",
   "tagline": "Scan. Suggest. Shape this site together.",
   "theme": {
-    "background": "#f3efe7",
-    "backgroundSecondary": "#fdfcf9",
-    "accent": "#c75c8a",
-    "text": "#2b2a33"
+    "background": "#f3f3f7",
+    "backgroundSecondary": "#ffffff",
+    "accent": "#6d5efc",
+    "text": "#1b1b22"
   },
   "elements": [
     {
       "id": "tabula",
       "type": "text",
-      "content": "tabula rasa",
-      "position": { "x": 50, "y": 44 },
-      "size": 44,
-      "color": "#2b2a33",
+      "content": "A blank canvas",
+      "position": { "x": 50, "y": 45 },
+      "size": 40,
+      "color": "#1b1b22",
       "animation": "none"
     },
     {
       "id": "hint",
       "type": "text",
-      "content": "a blank white slate.\nwhat should appear first?",
-      "position": { "x": 50, "y": 58 },
+      "content": "what should appear first?",
+      "position": { "x": 50, "y": 57 },
       "size": 16,
-      "color": "#6b6875",
+      "color": "#8a8a96",
       "animation": "pulse"
     },
     {
       "id": "first-mark",
       "type": "text",
       "content": "✦",
-      "position": { "x": 50, "y": 72 },
-      "size": 22,
-      "color": "#c75c8a",
+      "position": { "x": 50, "y": 70 },
+      "size": 20,
+      "color": "#6d5efc",
       "animation": "float"
     }
   ],
   "timeline": [
     {
       "version": 1,
-      "title": "Tabula rasa",
-      "description": "A slab of white marble, polished and untouched — humming with potential.",
+      "title": "A blank canvas",
+      "description": "An immaculate, empty canvas — waiting for its first idea.",
       "timestamp": "2026-06-26T10:00:00.000Z"
     }
   ],

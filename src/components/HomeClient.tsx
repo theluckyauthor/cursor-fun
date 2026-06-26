@@ -5,6 +5,7 @@ import { Canvas } from "./Canvas";
 import { Contributors } from "./Contributors";
 import { QRShare } from "./QRShare";
 import { RequestForm } from "./RequestForm";
+import { ShippedBanner } from "./ShippedBanner";
 import { SparkleCursor } from "./SparkleCursor";
 import { Timeline } from "./Timeline";
 import Link from "next/link";
@@ -72,11 +73,17 @@ export function HomeClient({ state, siteUrl }: HomeClientProps) {
 
       <main className="relative min-h-0 flex-1">
         {activeTab === "canvas" ? (
-          <Canvas
-            elements={state.elements}
-            background={state.theme.background}
-            backgroundSecondary={state.theme.backgroundSecondary}
-          />
+          <>
+            <ShippedBanner
+              contributors={state.contributors}
+              onViewContributors={() => setActiveTab("contributors")}
+            />
+            <Canvas
+              elements={state.elements}
+              background={state.theme.background}
+              backgroundSecondary={state.theme.backgroundSecondary}
+            />
+          </>
         ) : (
           <div className="h-full overflow-y-auto px-4 py-6 sm:px-8">
             {activeTab === "timeline" ? (

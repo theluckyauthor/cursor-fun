@@ -7,11 +7,16 @@ export const dynamic = "force-dynamic";
 export default async function StudioPage() {
   const state = getSiteState();
   const pending = await loadPendingRequests();
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   return (
     <StudioClient
       version={state.version}
       requests={pending.requests.filter((r) => r.status === "pending")}
+      siteUrl={siteUrl}
+      contributors={state.contributors}
+      timeline={state.timeline}
     />
   );
 }

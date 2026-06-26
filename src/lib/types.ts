@@ -1,4 +1,4 @@
-export type WidgetId = "calculator";
+export type ExperienceId = "calculator";
 
 export type ElementType =
   | "color"
@@ -6,7 +6,8 @@ export type ElementType =
   | "emoji"
   | "shape"
   | "pixel-snake"
-  | "widget";
+  | "widget"
+  | "experience";
 
 export interface Position {
   x: number;
@@ -41,6 +42,12 @@ export interface TimelineEntry {
 
 export interface ContributorPrompt {
   idea: string;
+  /** Operator- or agent-refined direction we actually built toward */
+  refinedIdea?: string;
+  /** Short name of what shipped (shown to the contributor) */
+  shippedTitle?: string;
+  /** Friendly note explaining what was created and how we interpreted their idea */
+  shippedNote?: string;
   version?: number;
   signedAt: string;
 }
@@ -72,4 +79,9 @@ export interface PendingRequest {
 
 export interface PendingRequestsFile {
   requests: PendingRequest[];
+}
+
+export interface SubmitterProfile {
+  name: string;
+  lastNotifiedVersion: number;
 }

@@ -1,5 +1,5 @@
 import type { CanvasElement, ElementType } from "@/lib/types";
-import { WidgetRenderer } from "./widgets/WidgetRenderer";
+import { ExperienceRenderer } from "./experiences/ExperienceRenderer";
 
 const animationClass: Record<
   NonNullable<CanvasElement["animation"]>,
@@ -159,9 +159,13 @@ function renderElement(element: CanvasElement) {
     case "pixel-snake":
       return renderPixelSnake(element, style, anim);
     case "widget":
+    case "experience":
       return (
         <div key={element.id} className={`absolute ${anim}`} style={style}>
-          <WidgetRenderer widgetId={element.content} size={element.size} />
+          <ExperienceRenderer
+            experienceId={element.content}
+            size={element.size}
+          />
         </div>
       );
     case "color":

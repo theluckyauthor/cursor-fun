@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { saveSubmitter } from "@/lib/submitter";
 
 interface RequestFormProps {
   onClose: () => void;
@@ -8,6 +9,14 @@ interface RequestFormProps {
 
 const COOLDOWN_MS = 5 * 60 * 1000;
 const COOLDOWN_KEY = "open-canvas:last-submit";
+
+const IDEA_EXAMPLES = [
+  "a neal.fun style toy",
+  "a fake windows desktop",
+  "my myspace page from 2007",
+  "a guestbook",
+  "make everything purple",
+];
 
 function remainingCooldown(): number {
   if (typeof window === "undefined") return 0;
@@ -33,6 +42,9 @@ export function RequestForm({ onClose }: RequestFormProps) {
   );
   const [errorMsg, setErrorMsg] = useState("");
   const [cooldown, setCooldown] = useState(0);
+  const [exampleIndex] = useState(() =>
+    Math.floor(Math.random() * IDEA_EXAMPLES.length),
+  );
 
   useEffect(() => {
     setCooldown(remainingCooldown());
@@ -67,6 +79,7 @@ export function RequestForm({ onClose }: RequestFormProps) {
         throw new Error(data.error ?? "Something went wrong");
       }
 
+      saveSubmitter(name.trim());
       window.localStorage.setItem(COOLDOWN_KEY, String(Date.now()));
       setCooldown(COOLDOWN_MS);
       setStatus("success");
@@ -83,7 +96,8 @@ export function RequestForm({ onClose }: RequestFormProps) {
         <h3 className="mt-4 font-display text-2xl font-black">It&rsquo;s in the jar!</h3>
         <p className="mt-2 text-canvas-muted">
           <span className="font-semibold text-canvas-text">{name}</span>
-          &rsquo;s idea is bubbling in the queue. Keep an eye on the canvas&hellip;
+          &rsquo;s idea is in the queue. We&rsquo;ll refine it, build something
+          fun, and you&rsquo;ll get a heads-up here when it ships.
         </p>
         <button
           type="button"
@@ -102,7 +116,8 @@ export function RequestForm({ onClose }: RequestFormProps) {
     <form onSubmit={handleSubmit} className="p-6">
       <h3 className="font-display text-2xl font-black">Suggest an idea</h3>
       <p className="mt-1 text-sm text-canvas-muted">
-        Anything goes — a pixel snake, a calculator, a color change, whatever you want.
+        Rough is fine — neal.fun toys, a fake desktop, a myspace page, a silly
+        game, whatever. We&rsquo;ll shape it into something real.
       </p>
 
       <label className="mt-5 block">
@@ -120,7 +135,10 @@ export function RequestForm({ onClose }: RequestFormProps) {
 
       <label className="mt-4 block">
         <span className="text-sm font-medium text-canvas-muted">
-          Contact <span className="text-canvas-muted/60">(optional — email, @handle, anything)</span>
+          How to reach you{" "}
+          <span className="text-canvas-muted/60">
+            (optional — so we can tell you what we built)
+          </span>
         </span>
         <input
           type="text"
@@ -137,7 +155,7 @@ export function RequestForm({ onClose }: RequestFormProps) {
         <textarea
           value={idea}
           onChange={(e) => setIdea(e.target.value)}
-          placeholder="A calculator in the corner, a dancing cat, make it purple..."
+          placeholder={IDEA_EXAMPLES[exampleIndex]}
           maxLength={280}
           required
           rows={3}
@@ -153,7 +171,7 @@ export function RequestForm({ onClose }: RequestFormProps) {
 
       {onCooldown && (
         <p className="mt-3 rounded-lg bg-canvas-accent/10 px-3 py-2 text-center text-sm text-canvas-accent">
-          One idea at a time! Next whisper in{" "}
+          One idea at a time! Next one in{" "}
           <span className="font-mono font-bold tabular-nums">
             {formatCountdown(cooldown)}
           </span>

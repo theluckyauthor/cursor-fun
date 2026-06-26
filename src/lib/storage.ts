@@ -91,10 +91,12 @@ export async function loadPendingRequests(): Promise<PendingRequestsFile> {
 export async function addPendingRequest(
   name: string,
   idea: string,
+  contact?: string,
 ): Promise<PendingRequest> {
   const request: PendingRequest = {
     id: crypto.randomUUID(),
     name: name.trim(),
+    contact: contact?.trim() || undefined,
     idea: idea.trim(),
     submittedAt: new Date().toISOString(),
     status: "pending",

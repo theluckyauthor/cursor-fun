@@ -81,6 +81,9 @@ export function StudioClient({ version, requests }: StudioClientProps) {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-display font-bold">{req.name}</p>
+                    {req.contact && (
+                      <p className="text-xs text-canvas-accent-2">{req.contact}</p>
+                    )}
                     <p className="mt-1 text-sm text-canvas-text">
                       &ldquo;{req.idea}&rdquo;
                     </p>

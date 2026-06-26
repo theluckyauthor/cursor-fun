@@ -63,8 +63,13 @@ Each request maps to changes in `data/site-state.json`:
 Always:
 - Bump `version`
 - Add a `timeline` entry (with `request` and `contributor`)
-- Add to `contributors[]`
+- Update `contributors[]`: find the matching name and push to their `prompts[]`, or add a new `{ name, contact, prompts: [...] }`
 - Remove the request from `data/pending-requests.json`
+
+## Safety & fairness
+
+- **Prompt-injection guard** — visitor ideas are sanitized in `src/lib/sanitize.ts`. Known injection phrasings ("ignore previous instructions", fake system tags, etc.) are rejected before they ever reach the queue, and the agent prompt wraps untrusted text in an `<idea>` block.
+- **5-minute cooldown** — each visitor can submit once every 5 minutes. Enforced client-side with a live countdown (`localStorage`) and best-effort server-side by IP (`src/lib/rate-limit.ts`).
 
 ## Project structure
 

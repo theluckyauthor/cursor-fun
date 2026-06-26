@@ -31,10 +31,16 @@ export interface TimelineEntry {
   timestamp: string;
 }
 
+export interface ContributorPrompt {
+  idea: string;
+  version?: number;
+  signedAt: string;
+}
+
 export interface Contributor {
   name: string;
-  request: string;
-  signedAt: string;
+  contact?: string;
+  prompts: ContributorPrompt[];
 }
 
 export interface SiteState {
@@ -50,6 +56,7 @@ export interface SiteState {
 export interface PendingRequest {
   id: string;
   name: string;
+  contact?: string;
   idea: string;
   submittedAt: string;
   status: "pending" | "done";

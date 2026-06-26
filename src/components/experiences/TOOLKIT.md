@@ -1,0 +1,42 @@
+# Experience toolkit
+
+Libraries installed for building interactive canvas experiences. Agents should prefer these over adding new dependencies.
+
+| Library | Use for |
+|---------|---------|
+| **framer-motion** | Smooth animations, springs, enter/exit, draggable motion |
+| **canvas-confetti** | Celebration bursts (`fireConfetti`, `fireConfettiBurst`) |
+| **react-draggable** | Fake desktop windows, movable stickers |
+| **lucide-react** | Icons (folder, x, minimize, star, etc.) |
+| **zustand** | Lightweight state inside an experience |
+| **howler** | Sound effects via `playSound("/sounds/pop.mp3")` |
+| **clsx + tailwind-merge** | `cn()` for class names |
+
+## Quick start
+
+```tsx
+"use client";
+
+import { motion } from "framer-motion";
+import { Star } from "lucide-react";
+import { cn, fireConfettiBurst, playSound } from "@/lib/toolkit";
+
+export function MyToy() {
+  return (
+    <motion.button
+      type="button"
+      className={cn("rounded-xl bg-canvas-accent px-4 py-2 font-bold text-white")}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={() => {
+        fireConfettiBurst();
+        playSound("/sounds/pop.mp3");
+      }}
+    >
+      <Star className="inline h-4 w-4" /> Click me
+    </motion.button>
+  );
+}
+```
+
+Drop sound files in `public/sounds/`. Register new experiences in `ExperienceRenderer.tsx`.

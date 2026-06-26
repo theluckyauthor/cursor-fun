@@ -4,6 +4,12 @@ const CREATIVE_BRIEF = `Open Canvas is a collaborative living site — think nea
 
 Rough ideas are expected. Interpret generously, improve the concept, and make something fun — not a literal 1:1 of a half-sentence ask.`;
 
+const TOOLKIT = `Experience toolkit (already installed — use these, don't add new deps unless necessary):
+- Import helpers from @/lib/toolkit: cn, fireConfetti, fireConfettiBurst, fireConfettiCannons, playSound, motion, AnimatePresence, Draggable, zustand create
+- Icons: lucide-react
+- Sounds: add mp3 to public/sounds/, play via playSound("/sounds/name.mp3")
+- See src/components/experiences/TOOLKIT.md for patterns`;
+
 export function buildAgentPrompt(
   request: PendingRequest,
   refinedIdea?: string,
@@ -31,6 +37,7 @@ Steps:
    - Interactive mini-apps: add a React component under src/components/experiences/, register it in ExperienceRenderer, then place { type: "experience", content: "<id>", position, size } on the canvas
    - Bigger vibes (fake desktop, guestbook, toy): same pattern — build the experience component, wire it up
    - Theme tweaks when they fit the mood
+   ${TOOLKIT}
 4. Bump the "version" number
 5. Add a timeline entry { version, title, description, request, contributor, timestamp }
 6. Update "contributors": find the entry whose name matches "${request.name}". Push a prompt object:

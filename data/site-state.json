@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "title": "Open Canvas",
+  "tagline": "Scan. Suggest. Shape this site together.",
+  "theme": {
+    "background": "#0f0a1a",
+    "backgroundSecondary": "#1a1230",
+    "accent": "#ff6b9d",
+    "text": "#f5f0ff"
+  },
+  "elements": [
+    {
+      "id": "welcome-text",
+      "type": "text",
+      "content": "The canvas is empty.\nYou write the first line.",
+      "position": { "x": 50, "y": 45 },
+      "size": 28,
+      "color": "#f5f0ff",
+      "animation": "pulse"
+    },
+    {
+      "id": "sparkle-1",
+      "type": "emoji",
+      "content": "✨",
+      "position": { "x": 20, "y": 25 },
+      "size": 32,
+      "animation": "float"
+    },
+    {
+      "id": "sparkle-2",
+      "type": "emoji",
+      "content": "🎨",
+      "position": { "x": 78, "y": 30 },
+      "size": 36,
+      "animation": "bounce"
+    },
+    {
+      "id": "sparkle-3",
+      "type": "emoji",
+      "content": "☕",
+      "position": { "x": 65, "y": 70 },
+      "size": 28,
+      "animation": "float"
+    }
+  ],
+  "timeline": [
+    {
+      "version": 1,
+      "title": "Blank canvas",
+      "description": "We begin. A dark room, a glowing screen, infinite possibilities.",
+      "timestamp": "2026-06-26T10:00:00.000Z"
+    }
+  ],
+  "contributors": []
+}

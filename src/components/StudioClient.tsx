@@ -1,8 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { buildAgentPrompt, buildNotifyMessage } from "@/lib/agent-prompt";
-import type { Contributor, ContributorPrompt, PendingRequest, TimelineEntry } from "@/lib/types";
+import type {
+  CanvasElement,
+  Contributor,
+  ContributorPrompt,
+  PendingRequest,
+  TimelineEntry,
+} from "@/lib/types";
 
 interface StudioClientProps {
   version: number;
@@ -10,6 +17,7 @@ interface StudioClientProps {
   siteUrl: string;
   contributors: Contributor[];
   timeline: TimelineEntry[];
+  elements: CanvasElement[];
 }
 
 const ADMIN_TOKEN_KEY = "open-canvas:admin-token";
@@ -29,7 +37,9 @@ export function StudioClient({
   siteUrl,
   contributors,
   timeline,
+  elements,
 }: StudioClientProps) {
+  const router = useRouter();
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [notifyCopiedId, setNotifyCopiedId] = useState<string | null>(null);
   const [refinements, setRefinements] = useState<Record<string, string>>({});
@@ -39,10 +49,47 @@ export function StudioClient({
     "idle" | "loading" | "done" | "error"
   >("idle");
   const [resetMsg, setResetMsg] = useState("");
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [moderateMsg, setModerateMsg] = useState("");
 
   useEffect(() => {
     setAdminToken(window.localStorage.getItem(ADMIN_TOKEN_KEY) ?? "");
   }, []);
+
+  async function moderate(
+    busyKey: string,
+    body:
+      | { action: "hide-element"; elementId: string }
+      | { action: "reject-request"; requestId: string },
+  ) {
+    setBusyId(busyKey);
+    setModerateMsg("");
+    window.localStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
+
+    try {
+      const res = await fetch("/api/moderate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-token": adminToken,
+        },
+        body: JSON.stringify(body),
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(data.error ?? "Action failed");
+
+      setModerateMsg(
+        body.action === "hide-element"
+          ? "Element removed. Live site updates after deploy (~60s)."
+          : "Request rejected.",
+      );
+      router.refresh();
+    } catch (err) {
+      setModerateMsg(err instanceof Error ? err.message : "Action failed");
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   async function copyPrompt(request: PendingRequest) {
     await navigator.clipboard.writeText(
@@ -176,6 +223,19 @@ export function StudioClient({
                       {formatTime(req.submittedAt)}
                     </time>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      moderate(req.id, {
+                        action: "reject-request",
+                        requestId: req.id,
+                      })
+                    }
+                    disabled={busyId === req.id}
+                    className="shrink-0 rounded-full border border-red-500/30 px-3 py-1 text-xs font-medium text-red-300 transition hover:bg-red-500/10 disabled:opacity-50"
+                  >
+                    {busyId === req.id ? "…" : "Reject"}
+                  </button>
                 </div>
 
                 <label className="mt-3 block">
@@ -258,6 +318,59 @@ export function StudioClient({
           </div>
         </section>
       )}
+
+      <section className="mt-8">
+        <h2 className="mb-3 font-display text-lg font-bold">
+          Live canvas elements
+          <span className="ml-2 rounded-full bg-white/10 px-2 py-0.5 text-sm text-canvas-muted">
+            {elements.filter((e) => e.type !== "color").length}
+          </span>
+        </h2>
+        <p className="mb-3 text-sm text-canvas-muted">
+          Pull anything off the projector instantly without a full reset.
+        </p>
+
+        {elements.filter((e) => e.type !== "color").length === 0 ? (
+          <div className="rounded-xl border border-dashed border-white/15 px-6 py-8 text-center text-sm text-canvas-muted">
+            Canvas is empty.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {elements
+              .filter((e) => e.type !== "color")
+              .map((el) => (
+                <div
+                  key={el.id}
+                  className="flex items-center gap-3 rounded-xl border border-white/10 bg-canvas-surface px-4 py-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-canvas-text">
+                      {el.label ?? (el.content || el.id)}
+                    </p>
+                    <p className="text-xs text-canvas-muted">{el.type}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      moderate(el.id, {
+                        action: "hide-element",
+                        elementId: el.id,
+                      })
+                    }
+                    disabled={busyId === el.id}
+                    className="shrink-0 rounded-full border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-300 transition hover:bg-red-500/10 disabled:opacity-50"
+                  >
+                    {busyId === el.id ? "Removing…" : "Remove"}
+                  </button>
+                </div>
+              ))}
+          </div>
+        )}
+
+        {moderateMsg && (
+          <p className="mt-3 text-sm text-canvas-accent-2">{moderateMsg}</p>
+        )}
+      </section>
 
       <section className="mt-8 rounded-xl border border-red-500/20 bg-red-500/5 p-4">
         <h2 className="font-display text-sm font-bold text-red-300">

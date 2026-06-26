@@ -38,11 +38,7 @@ const SNAKE_BODY: [number, number][] = [
 const SNAKE_HEAD: [number, number] = [5, 1];
 const SNAKE_EYE: [number, number] = [4, 1];
 
-function renderPixelSnake(
-  element: CanvasElement,
-  style: React.CSSProperties,
-  anim: string,
-) {
+function PixelSnake({ element }: { element: CanvasElement }) {
   const pixelSize = element.size ?? 10;
   const bodyColor = element.color ?? "#3dca6f";
   const headColor = "#2a9d5c";
@@ -52,74 +48,59 @@ function renderPixelSnake(
 
   return (
     <div
-      key={element.id}
-      className={`absolute ${anim}`}
-      style={style}
+      className="grid"
+      style={{
+        gridTemplateColumns: `repeat(${cols}, ${pixelSize}px)`,
+        gridTemplateRows: `repeat(${rows}, ${pixelSize}px)`,
+        imageRendering: "pixelated",
+      }}
       aria-label="Pixel snake"
     >
-      <div
-        className="grid"
-        style={{
-          gridTemplateColumns: `repeat(${cols}, ${pixelSize}px)`,
-          gridTemplateRows: `repeat(${rows}, ${pixelSize}px)`,
-          imageRendering: "pixelated",
-        }}
-      >
-        {Array.from({ length: cols * rows }, (_, i) => {
-          const col = i % cols;
-          const row = Math.floor(i / cols);
-          const isHead = col === SNAKE_HEAD[0] && row === SNAKE_HEAD[1];
-          const isEye = col === SNAKE_EYE[0] && row === SNAKE_EYE[1];
-          const isBody = SNAKE_BODY.some(([c, r]) => c === col && r === row);
+      {Array.from({ length: cols * rows }, (_, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const isHead = col === SNAKE_HEAD[0] && row === SNAKE_HEAD[1];
+        const isEye = col === SNAKE_EYE[0] && row === SNAKE_EYE[1];
+        const isBody = SNAKE_BODY.some(([c, r]) => c === col && r === row);
 
-          if (!isBody) {
-            return (
-              <div
-                key={`${col}-${row}`}
-                style={{ width: pixelSize, height: pixelSize }}
-              />
-            );
-          }
-
+        if (!isBody) {
           return (
             <div
               key={`${col}-${row}`}
-              style={{
-                width: pixelSize,
-                height: pixelSize,
-                backgroundColor: isEye ? eyeColor : isHead ? headColor : bodyColor,
-                boxShadow: isHead
-                  ? `0 0 ${pixelSize}px ${headColor}80`
-                  : undefined,
-              }}
+              style={{ width: pixelSize, height: pixelSize }}
             />
           );
-        })}
-      </div>
+        }
+
+        return (
+          <div
+            key={`${col}-${row}`}
+            style={{
+              width: pixelSize,
+              height: pixelSize,
+              backgroundColor: isEye ? eyeColor : isHead ? headColor : bodyColor,
+              boxShadow: isHead ? `0 0 ${pixelSize}px ${headColor}80` : undefined,
+            }}
+          />
+        );
+      })}
     </div>
   );
 }
 
-function renderElement(element: CanvasElement) {
-  const style: React.CSSProperties = {
-    left: `${element.position?.x ?? 50}%`,
-    top: `${element.position?.y ?? 50}%`,
-    transform: "translate(-50%, -50%)",
-  };
+type VisibleElement = CanvasElement & { type: Exclude<ElementType, "color"> };
 
-  const anim =
-    element.animation && element.animation !== "none"
-      ? animationClass[element.animation]
-      : "";
-
+/**
+ * Renders just the visual content of an element (no positioning), so it can be
+ * placed on the absolute canvas or inside a gallery tile.
+ */
+export function CanvasElementView({ element }: { element: VisibleElement }) {
   switch (element.type) {
     case "text":
       return (
         <div
-          key={element.id}
-          className={`absolute max-w-[80%] text-center font-display font-bold leading-tight whitespace-pre-line ${anim}`}
+          className="max-w-[80%] text-center font-display font-bold leading-tight whitespace-pre-line"
           style={{
-            ...style,
             fontSize: element.size ?? 24,
             color: element.color ?? "#f5f0ff",
           }}
@@ -130,12 +111,8 @@ function renderElement(element: CanvasElement) {
     case "emoji":
       return (
         <div
-          key={element.id}
-          className={`absolute select-none ${anim}`}
-          style={{
-            ...style,
-            fontSize: element.size ?? 32,
-          }}
+          className="select-none"
+          style={{ fontSize: element.size ?? 32 }}
           aria-hidden
         >
           {element.content}
@@ -144,10 +121,8 @@ function renderElement(element: CanvasElement) {
     case "shape":
       return (
         <div
-          key={element.id}
-          className={`absolute rounded-full ${anim}`}
+          className="rounded-full"
           style={{
-            ...style,
             width: element.size ?? 24,
             height: element.size ?? 24,
             backgroundColor: element.color ?? "#ff6b9d",
@@ -157,24 +132,46 @@ function renderElement(element: CanvasElement) {
         />
       );
     case "pixel-snake":
-      return renderPixelSnake(element, style, anim);
+      return <PixelSnake element={element} />;
     case "widget":
     case "experience":
       return (
-        <div key={element.id} className={`absolute ${anim}`} style={style}>
-          <ExperienceRenderer
-            experienceId={element.content}
-            size={element.size}
-          />
-        </div>
+        <ExperienceRenderer
+          experienceId={element.content}
+          size={element.size}
+        />
       );
-    case "color":
-      return null;
     default: {
-      const _exhaustive: never = element.type as never;
+      const _exhaustive: never = element.type;
       return _exhaustive;
     }
   }
+}
+
+export function toVisibleElements(elements: CanvasElement[]): VisibleElement[] {
+  return elements.filter((e): e is VisibleElement => e.type !== "color");
+}
+
+function renderOnCanvas(element: VisibleElement) {
+  const anim =
+    element.animation && element.animation !== "none"
+      ? animationClass[element.animation]
+      : "";
+
+  return (
+    <div
+      key={element.id}
+      className={`absolute ${anim}`}
+      style={{
+        left: `${element.position?.x ?? 50}%`,
+        top: `${element.position?.y ?? 50}%`,
+        transform: "translate(-50%, -50%)",
+        zIndex: element.zIndex,
+      }}
+    >
+      <CanvasElementView element={element} />
+    </div>
+  );
 }
 
 export function Canvas({
@@ -182,10 +179,7 @@ export function Canvas({
   background,
   backgroundSecondary,
 }: CanvasProps) {
-  const visibleElements = elements.filter(
-    (e): e is CanvasElement & { type: Exclude<ElementType, "color"> } =>
-      e.type !== "color",
-  );
+  const visibleElements = toVisibleElements(elements);
 
   return (
     <div
@@ -201,7 +195,7 @@ export function Canvas({
           </p>
         </div>
       )}
-      {visibleElements.map(renderElement)}
+      {visibleElements.map(renderOnCanvas)}
     </div>
   );
 }

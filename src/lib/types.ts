@@ -22,6 +22,12 @@ export interface CanvasElement {
   size?: number;
   color?: string;
   animation?: "float" | "bounce" | "spin" | "pulse" | "none";
+  /** Spotlighted elements stay on the live canvas even when it gets crowded */
+  pinned?: boolean;
+  /** Stacking order for overlapping elements (higher = front) */
+  zIndex?: number;
+  /** Human-friendly label shown in the gallery/operator tools */
+  label?: string;
 }
 
 export interface Theme {

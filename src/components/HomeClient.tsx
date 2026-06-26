@@ -3,12 +3,15 @@
 import { useState } from "react";
 import { Canvas } from "./Canvas";
 import { Contributors } from "./Contributors";
+import { Gallery } from "./Gallery";
+import { LiveUpdateToast } from "./LiveUpdateToast";
 import { QRShare } from "./QRShare";
 import { RequestForm } from "./RequestForm";
 import { ShippedBanner } from "./ShippedBanner";
 import { SparkleCursor } from "./SparkleCursor";
 import { Timeline } from "./Timeline";
 import Link from "next/link";
+import { useLiveVersion } from "@/lib/use-live-version";
 import type { SiteState } from "@/lib/types";
 
 interface HomeClientProps {
@@ -16,10 +19,11 @@ interface HomeClientProps {
   siteUrl: string;
 }
 
-type HeaderTab = "canvas" | "timeline" | "contributors";
+type HeaderTab = "canvas" | "gallery" | "timeline" | "contributors";
 
 const TABS: { id: HeaderTab; label: string }[] = [
   { id: "canvas", label: "Canvas" },
+  { id: "gallery", label: "Gallery" },
   { id: "timeline", label: "Timeline" },
   { id: "contributors", label: "Contributors" },
 ];
@@ -27,6 +31,7 @@ const TABS: { id: HeaderTab; label: string }[] = [
 export function HomeClient({ state, siteUrl }: HomeClientProps) {
   const [activeTab, setActiveTab] = useState<HeaderTab>("canvas");
   const [formOpen, setFormOpen] = useState(false);
+  const { newVersion, applyUpdate, dismiss } = useLiveVersion(state.version);
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden">
@@ -86,7 +91,9 @@ export function HomeClient({ state, siteUrl }: HomeClientProps) {
           </>
         ) : (
           <div className="h-full overflow-y-auto px-4 py-6 sm:px-8">
-            {activeTab === "timeline" ? (
+            {activeTab === "gallery" ? (
+              <Gallery elements={state.elements} />
+            ) : activeTab === "timeline" ? (
               <Timeline entries={state.timeline} />
             ) : (
               <Contributors contributors={state.contributors} />
@@ -105,6 +112,14 @@ export function HomeClient({ state, siteUrl }: HomeClientProps) {
           </button>
         )}
       </main>
+
+      {newVersion !== null && (
+        <LiveUpdateToast
+          newVersion={newVersion}
+          onApply={applyUpdate}
+          onDismiss={dismiss}
+        />
+      )}
 
       {formOpen && (
         <div

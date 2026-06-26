@@ -38,6 +38,7 @@ Steps:
    - Interactive mini-apps: add a React component under src/components/experiences/, register it in ExperienceRenderer, then place { type: "experience", content: "<id>", position, size } on the canvas
    - Bigger vibes (fake desktop, guestbook, toy): same pattern — build the experience component, wire it up
    - Theme tweaks when they fit the mood
+   - Optional element fields: "label" (friendly name for the gallery/operator), "pinned" (keep it spotlighted), "zIndex" (stacking). Set a "label" on interactive elements. Place new elements so they don't overlap existing ones.
    ${TOOLKIT}
 4. Bump the "version" number
 5. Add a timeline entry { version, title, description, request, contributor, timestamp }

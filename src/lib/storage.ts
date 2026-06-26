@@ -1,7 +1,15 @@
-import type { PendingRequest, PendingRequestsFile } from "./types";
-import { getPendingRequests, writePendingRequests } from "./site-state";
+import type { PendingRequest, PendingRequestsFile, SiteState } from "./types";
+import {
+  getPendingRequests,
+  getSiteState,
+  writePendingRequests,
+  writeSiteState,
+} from "./site-state";
+import { DEFAULT_ELEMENTS, DEFAULT_THEME } from "./default-canvas";
 
 const GITHUB_API = "https://api.github.com";
+const PENDING_PATH = "data/pending-requests.json";
+const STATE_PATH = "data/site-state.json";
 
 function githubConfig() {
   const token = process.env.GITHUB_TOKEN;
@@ -10,12 +18,12 @@ function githubConfig() {
   return { token, repo };
 }
 
-async function readFromGitHub(): Promise<PendingRequestsFile> {
+async function readJsonFromGitHub<T>(path: string): Promise<T> {
   const config = githubConfig();
   if (!config) throw new Error("GitHub not configured");
 
   const res = await fetch(
-    `${GITHUB_API}/repos/${config.repo}/contents/data/pending-requests.json`,
+    `${GITHUB_API}/repos/${config.repo}/contents/${path}`,
     {
       headers: {
         Authorization: `Bearer ${config.token}`,
@@ -29,22 +37,27 @@ async function readFromGitHub(): Promise<PendingRequestsFile> {
     throw new Error(`GitHub read failed: ${res.status}`);
   }
 
-  const body = (await res.json()) as { content: string; sha: string };
+  const body = (await res.json()) as { content: string };
   const content = Buffer.from(body.content, "base64").toString("utf-8");
-  return JSON.parse(content) as PendingRequestsFile;
+  return JSON.parse(content) as T;
 }
 
-async function writeToGitHub(data: PendingRequestsFile): Promise<void> {
+async function writeJsonToGitHub(
+  path: string,
+  data: unknown,
+  message: string,
+): Promise<void> {
   const config = githubConfig();
   if (!config) throw new Error("GitHub not configured");
 
   const getRes = await fetch(
-    `${GITHUB_API}/repos/${config.repo}/contents/data/pending-requests.json`,
+    `${GITHUB_API}/repos/${config.repo}/contents/${path}`,
     {
       headers: {
         Authorization: `Bearer ${config.token}`,
         Accept: "application/vnd.github+json",
       },
+      cache: "no-store",
     },
   );
 
@@ -59,7 +72,7 @@ async function writeToGitHub(data: PendingRequestsFile): Promise<void> {
   );
 
   const res = await fetch(
-    `${GITHUB_API}/repos/${config.repo}/contents/data/pending-requests.json`,
+    `${GITHUB_API}/repos/${config.repo}/contents/${path}`,
     {
       method: "PUT",
       headers: {
@@ -67,11 +80,7 @@ async function writeToGitHub(data: PendingRequestsFile): Promise<void> {
         Accept: "application/vnd.github+json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        message: `Add request from ${data.requests.at(-1)?.name ?? "visitor"}`,
-        content,
-        sha,
-      }),
+      body: JSON.stringify({ message, content, sha }),
     },
   );
 
@@ -83,7 +92,7 @@ async function writeToGitHub(data: PendingRequestsFile): Promise<void> {
 
 export async function loadPendingRequests(): Promise<PendingRequestsFile> {
   if (githubConfig()) {
-    return readFromGitHub();
+    return readJsonFromGitHub<PendingRequestsFile>(PENDING_PATH);
   }
   return getPendingRequests();
 }
@@ -91,19 +100,25 @@ export async function loadPendingRequests(): Promise<PendingRequestsFile> {
 export async function addPendingRequest(
   name: string,
   idea: string,
+  contact?: string,
 ): Promise<PendingRequest> {
   const request: PendingRequest = {
     id: crypto.randomUUID(),
     name: name.trim(),
+    contact: contact?.trim() || undefined,
     idea: idea.trim(),
     submittedAt: new Date().toISOString(),
     status: "pending",
   };
 
   if (githubConfig()) {
-    const data = await readFromGitHub();
+    const data = await readJsonFromGitHub<PendingRequestsFile>(PENDING_PATH);
     data.requests.push(request);
-    await writeToGitHub(data);
+    await writeJsonToGitHub(
+      PENDING_PATH,
+      data,
+      `Add request from ${request.name}`,
+    );
     return request;
   }
 
@@ -113,3 +128,42 @@ export async function addPendingRequest(
   return request;
 }
 
+async function loadSiteState(): Promise<SiteState> {
+  if (githubConfig()) {
+    return readJsonFromGitHub<SiteState>(STATE_PATH);
+  }
+  return getSiteState();
+}
+
+/**
+ * Clears the canvas back to the immaculate blank state while preserving the
+ * timeline history and contributor wall. Bumps the version and logs the reset.
+ */
+export async function resetCanvas(): Promise<SiteState> {
+  const current = await loadSiteState();
+  const nextVersion = current.version + 1;
+
+  const reset: SiteState = {
+    ...current,
+    version: nextVersion,
+    theme: { ...DEFAULT_THEME },
+    elements: DEFAULT_ELEMENTS.map((e) => ({ ...e })),
+    timeline: [
+      ...current.timeline,
+      {
+        version: nextVersion,
+        title: "Canvas reset",
+        description: "The canvas was cleared back to a blank slate.",
+        timestamp: new Date().toISOString(),
+      },
+    ],
+  };
+
+  if (githubConfig()) {
+    await writeJsonToGitHub(STATE_PATH, reset, `Reset canvas (v${nextVersion})`);
+  } else {
+    writeSiteState(reset);
+  }
+
+  return reset;
+}

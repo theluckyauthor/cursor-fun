@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { buildAgentPrompt } from "@/lib/agent-prompt";
 import type { PendingRequest } from "@/lib/types";
 
@@ -8,6 +8,8 @@ interface StudioClientProps {
   version: number;
   requests: PendingRequest[];
 }
+
+const ADMIN_TOKEN_KEY = "open-canvas:admin-token";
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {
@@ -20,11 +22,45 @@ function formatTime(iso: string): string {
 
 export function StudioClient({ version, requests }: StudioClientProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [adminToken, setAdminToken] = useState("");
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [resetState, setResetState] = useState<
+    "idle" | "loading" | "done" | "error"
+  >("idle");
+  const [resetMsg, setResetMsg] = useState("");
+
+  useEffect(() => {
+    setAdminToken(window.localStorage.getItem(ADMIN_TOKEN_KEY) ?? "");
+  }, []);
 
   async function copyPrompt(request: PendingRequest) {
     await navigator.clipboard.writeText(buildAgentPrompt(request));
     setCopiedId(request.id);
     setTimeout(() => setCopiedId(null), 2500);
+  }
+
+  async function handleReset() {
+    setResetState("loading");
+    setResetMsg("");
+    window.localStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
+
+    try {
+      const res = await fetch("/api/reset", {
+        method: "POST",
+        headers: { "x-admin-token": adminToken },
+      });
+      const data = (await res.json()) as { version?: number; error?: string };
+      if (!res.ok) throw new Error(data.error ?? "Reset failed");
+
+      setResetState("done");
+      setResetMsg(
+        `Canvas reset to v${data.version}. Live site updates after the deploy (~60s).`,
+      );
+      setConfirmReset(false);
+    } catch (err) {
+      setResetState("error");
+      setResetMsg(err instanceof Error ? err.message : "Reset failed");
+    }
   }
 
   const sorted = [...requests].sort(
@@ -81,6 +117,9 @@ export function StudioClient({ version, requests }: StudioClientProps) {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-display font-bold">{req.name}</p>
+                    {req.contact && (
+                      <p className="text-xs text-canvas-accent-2">{req.contact}</p>
+                    )}
                     <p className="mt-1 text-sm text-canvas-text">
                       &ldquo;{req.idea}&rdquo;
                     </p>
@@ -99,6 +138,70 @@ export function StudioClient({ version, requests }: StudioClientProps) {
               </div>
             ))}
           </div>
+        )}
+      </section>
+
+      <section className="mt-8 rounded-xl border border-red-500/20 bg-red-500/5 p-4">
+        <h2 className="font-display text-sm font-bold text-red-300">
+          Danger zone
+        </h2>
+        <p className="mt-1 text-sm text-canvas-muted">
+          Clear the canvas back to a blank slate. Timeline history and
+          contributors are kept.
+        </p>
+
+        <label className="mt-3 block">
+          <span className="text-xs font-medium text-canvas-muted">
+            Admin token
+          </span>
+          <input
+            type="password"
+            value={adminToken}
+            onChange={(e) => setAdminToken(e.target.value)}
+            placeholder="Set ADMIN_TOKEN in your env"
+            className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-canvas-text placeholder:text-canvas-muted/50 outline-none focus:border-red-400/50"
+          />
+        </label>
+
+        {!confirmReset ? (
+          <button
+            type="button"
+            onClick={() => {
+              setConfirmReset(true);
+              setResetState("idle");
+            }}
+            className="mt-3 w-full rounded-full border border-red-500/40 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+          >
+            Reset canvas
+          </button>
+        ) : (
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={() => setConfirmReset(false)}
+              className="flex-1 rounded-full border border-white/15 py-2.5 text-sm font-medium transition hover:bg-white/5"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleReset}
+              disabled={resetState === "loading"}
+              className="flex-1 rounded-full bg-red-500 py-2.5 text-sm font-bold text-white transition hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
+            >
+              {resetState === "loading" ? "Resetting…" : "Yes, clear it"}
+            </button>
+          </div>
+        )}
+
+        {resetMsg && (
+          <p
+            className={`mt-3 text-sm ${
+              resetState === "error" ? "text-red-300" : "text-canvas-accent-2"
+            }`}
+          >
+            {resetMsg}
+          </p>
         )}
       </section>
 

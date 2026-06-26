@@ -20,6 +20,7 @@ npm run dev
    - `NEXT_PUBLIC_SITE_URL` — your production URL (e.g. `https://open-canvas.vercel.app`)
    - `GITHUB_TOKEN` — a fine-grained PAT with **Contents: Read and write** on this repo
    - `GITHUB_REPO` — `your-username/cursor-fun`
+   - `ADMIN_TOKEN` — a secret of your choosing; required to use the canvas reset button
 4. Deploy — every push auto-updates the site
 
 > **Why GitHub token?** Vercel's serverless functions can't write to the filesystem. Visitor request submissions are committed to `data/pending-requests.json` via the GitHub API so your `/studio` page can see them.
@@ -63,8 +64,22 @@ Each request maps to changes in `data/site-state.json`:
 Always:
 - Bump `version`
 - Add a `timeline` entry (with `request` and `contributor`)
-- Add to `contributors[]`
+- Update `contributors[]`: find the matching name and push to their `prompts[]`, or add a new `{ name, contact, prompts: [...] }`
 - Remove the request from `data/pending-requests.json`
+
+## Safety & fairness
+
+- **Prompt-injection guard** — visitor ideas are sanitized in `src/lib/sanitize.ts`. Known injection phrasings ("ignore previous instructions", fake system tags, etc.) are rejected before they ever reach the queue, and the agent prompt wraps untrusted text in an `<idea>` block.
+- **5-minute cooldown** — each visitor can submit once every 5 minutes. Enforced client-side with a live countdown (`localStorage`) and best-effort server-side by IP (`src/lib/rate-limit.ts`).
+
+## Admin: resetting the canvas
+
+The **Danger zone** at the bottom of `/studio` clears the canvas back to the immaculate blank state (timeline history and contributors are preserved). It calls `POST /api/reset`, which:
+
+- Requires the `x-admin-token` header to match `ADMIN_TOKEN` (when set)
+- Writes the blank state to `data/site-state.json` (via GitHub API in production), bumps the version, and logs a "Canvas reset" timeline entry
+
+On Vercel the live canvas updates after the reset commit redeploys (~60s). Your token is remembered in the browser so you only type it once.
 
 ## Project structure
 

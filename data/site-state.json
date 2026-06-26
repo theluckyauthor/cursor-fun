@@ -3,51 +3,45 @@
   "title": "Open Canvas",
   "tagline": "Scan. Suggest. Shape this site together.",
   "theme": {
-    "background": "#0f0a1a",
-    "backgroundSecondary": "#1a1230",
-    "accent": "#ff6b9d",
-    "text": "#f5f0ff"
+    "background": "#f3f3f7",
+    "backgroundSecondary": "#ffffff",
+    "accent": "#6d5efc",
+    "text": "#1b1b22"
   },
   "elements": [
     {
-      "id": "welcome-text",
+      "id": "tabula",
       "type": "text",
-      "content": "The canvas is empty.\nYou write the first line.",
+      "content": "A blank canvas",
       "position": { "x": 50, "y": 45 },
-      "size": 28,
-      "color": "#f5f0ff",
+      "size": 40,
+      "color": "#1b1b22",
+      "animation": "none"
+    },
+    {
+      "id": "hint",
+      "type": "text",
+      "content": "what should appear first?",
+      "position": { "x": 50, "y": 57 },
+      "size": 16,
+      "color": "#8a8a96",
       "animation": "pulse"
     },
     {
-      "id": "sparkle-1",
-      "type": "emoji",
-      "content": "✨",
-      "position": { "x": 20, "y": 25 },
-      "size": 32,
-      "animation": "float"
-    },
-    {
-      "id": "sparkle-2",
-      "type": "emoji",
-      "content": "🎨",
-      "position": { "x": 78, "y": 30 },
-      "size": 36,
-      "animation": "bounce"
-    },
-    {
-      "id": "sparkle-3",
-      "type": "emoji",
-      "content": "☕",
-      "position": { "x": 65, "y": 70 },
-      "size": 28,
+      "id": "first-mark",
+      "type": "text",
+      "content": "✦",
+      "position": { "x": 50, "y": 70 },
+      "size": 20,
+      "color": "#6d5efc",
       "animation": "float"
     }
   ],
   "timeline": [
     {
       "version": 1,
-      "title": "Blank canvas",
-      "description": "We begin. A dark room, a glowing screen, infinite possibilities.",
+      "title": "A blank canvas",
+      "description": "An immaculate, empty canvas — waiting for its first idea.",
       "timestamp": "2026-06-26T10:00:00.000Z"
     }
   ],

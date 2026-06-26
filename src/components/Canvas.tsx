@@ -94,16 +94,16 @@ export function Canvas({
 
   return (
     <div
-      className="relative min-h-[50vh] flex-1 overflow-hidden rounded-2xl border border-white/10 grain"
+      className="relative min-h-[56vh] flex-1 overflow-hidden rounded-3xl ring-1 ring-black/5 shadow-[0_30px_90px_-24px_rgba(0,0,0,0.55)]"
       style={{
-        background: `radial-gradient(ellipse at 30% 20%, ${backgroundSecondary} 0%, ${background} 70%)`,
+        background: `radial-gradient(130% 120% at 50% 0%, ${backgroundSecondary} 0%, ${background} 72%)`,
       }}
     >
       <div
-        className="pointer-events-none absolute inset-0 opacity-30"
+        className="pointer-events-none absolute inset-0"
         style={{
-          background:
-            "radial-gradient(circle at 70% 80%, #7b5cff33 0%, transparent 50%)",
+          boxShadow:
+            "inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 1px rgba(0,0,0,0.04)",
         }}
       />
       {visibleElements.map(renderElement)}

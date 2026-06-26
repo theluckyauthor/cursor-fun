@@ -11,6 +11,7 @@ Libraries installed for building interactive canvas experiences. Agents should p
 | **zustand** | Lightweight state inside an experience |
 | **howler** | Sound effects via `playSound("/sounds/pop.mp3")` |
 | **clsx + tailwind-merge** | `cn()` for class names |
+| **three + @react-three/fiber + @react-three/drei** | 3D scenes, WebGL toys |
 
 ## Quick start
 
@@ -38,5 +39,33 @@ export function MyToy() {
   );
 }
 ```
+
+## 3D experiences
+
+Use `@react-three/fiber` — render a `<Canvas>` inside a fixed-size box. See `Scene3D.tsx` for a working spinning-cube reference. Keep 3D components `"use client"` (they use WebGL and browser APIs).
+
+```tsx
+"use client";
+
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+
+export function MyScene({ size = 280 }: { size?: number }) {
+  return (
+    <div style={{ width: size, height: size }}>
+      <Canvas>
+        <ambientLight />
+        <mesh>
+          <sphereGeometry />
+          <meshStandardMaterial color="hotpink" />
+        </mesh>
+        <OrbitControls />
+      </Canvas>
+    </div>
+  );
+}
+```
+
+Heavy experiences (three.js, large libs) should be lazy-loaded with `next/dynamic` in `ExperienceRenderer.tsx` so they don't bloat the main canvas bundle. See how `scene-3d` is registered.
 
 Drop sound files in `public/sounds/`. Register new experiences in `ExperienceRenderer.tsx`.

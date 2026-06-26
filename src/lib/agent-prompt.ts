@@ -8,6 +8,7 @@ const TOOLKIT = `Experience toolkit (already installed — use these, don't add 
 - Import helpers from @/lib/toolkit: cn, fireConfetti, fireConfettiBurst, fireConfettiCannons, playSound, motion, AnimatePresence, Draggable, zustand create
 - Icons: lucide-react
 - Sounds: add mp3 to public/sounds/, play via playSound("/sounds/name.mp3")
+- 3D: three + @react-three/fiber + @react-three/drei (render a <Canvas> in a fixed-size box; see Scene3D.tsx)
 - See src/components/experiences/TOOLKIT.md for patterns`;
 
 export function buildAgentPrompt(

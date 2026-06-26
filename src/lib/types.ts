@@ -1,4 +1,9 @@
-export type ElementType = "color" | "text" | "emoji" | "shape";
+export type ElementType =
+  | "color"
+  | "text"
+  | "emoji"
+  | "shape"
+  | "pixel-snake";
 
 export interface Position {
   x: number;

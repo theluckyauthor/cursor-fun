@@ -3,51 +3,45 @@
   "title": "Open Canvas",
   "tagline": "Scan. Suggest. Shape this site together.",
   "theme": {
-    "background": "#0f0a1a",
-    "backgroundSecondary": "#1a1230",
-    "accent": "#ff6b9d",
-    "text": "#f5f0ff"
+    "background": "#f3efe7",
+    "backgroundSecondary": "#fdfcf9",
+    "accent": "#c75c8a",
+    "text": "#2b2a33"
   },
   "elements": [
     {
-      "id": "welcome-text",
+      "id": "tabula",
       "type": "text",
-      "content": "The canvas is empty.\nYou write the first line.",
-      "position": { "x": 50, "y": 45 },
-      "size": 28,
-      "color": "#f5f0ff",
+      "content": "tabula rasa",
+      "position": { "x": 50, "y": 44 },
+      "size": 44,
+      "color": "#2b2a33",
+      "animation": "none"
+    },
+    {
+      "id": "hint",
+      "type": "text",
+      "content": "a blank white slate.\nwhat should appear first?",
+      "position": { "x": 50, "y": 58 },
+      "size": 16,
+      "color": "#6b6875",
       "animation": "pulse"
     },
     {
-      "id": "sparkle-1",
-      "type": "emoji",
-      "content": "✨",
-      "position": { "x": 20, "y": 25 },
-      "size": 32,
-      "animation": "float"
-    },
-    {
-      "id": "sparkle-2",
-      "type": "emoji",
-      "content": "🎨",
-      "position": { "x": 78, "y": 30 },
-      "size": 36,
-      "animation": "bounce"
-    },
-    {
-      "id": "sparkle-3",
-      "type": "emoji",
-      "content": "☕",
-      "position": { "x": 65, "y": 70 },
-      "size": 28,
+      "id": "first-mark",
+      "type": "text",
+      "content": "✦",
+      "position": { "x": 50, "y": 72 },
+      "size": 22,
+      "color": "#c75c8a",
       "animation": "float"
     }
   ],
   "timeline": [
     {
       "version": 1,
-      "title": "Blank canvas",
-      "description": "We begin. A dark room, a glowing screen, infinite possibilities.",
+      "title": "Tabula rasa",
+      "description": "A slab of white marble, polished and untouched — humming with potential.",
       "timestamp": "2026-06-26T10:00:00.000Z"
     }
   ],

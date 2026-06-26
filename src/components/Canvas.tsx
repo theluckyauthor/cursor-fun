@@ -17,6 +17,88 @@ interface CanvasProps {
   backgroundSecondary: string;
 }
 
+/** Retro snake body as [col, row] on a pixel grid */
+const SNAKE_BODY: [number, number][] = [
+  [2, 1],
+  [3, 1],
+  [4, 1],
+  [5, 1],
+  [5, 2],
+  [4, 3],
+  [5, 3],
+  [3, 4],
+  [4, 4],
+  [2, 5],
+  [3, 5],
+  [1, 6],
+  [2, 6],
+];
+
+const SNAKE_HEAD: [number, number] = [5, 1];
+const SNAKE_EYE: [number, number] = [4, 1];
+
+function renderPixelSnake(
+  element: CanvasElement,
+  style: React.CSSProperties,
+  anim: string,
+) {
+  const pixelSize = element.size ?? 10;
+  const bodyColor = element.color ?? "#3dca6f";
+  const headColor = "#2a9d5c";
+  const eyeColor = "#1b1b22";
+  const cols = 8;
+  const rows = 8;
+
+  return (
+    <div
+      key={element.id}
+      className={`absolute ${anim}`}
+      style={style}
+      aria-label="Pixel snake"
+    >
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: `repeat(${cols}, ${pixelSize}px)`,
+          gridTemplateRows: `repeat(${rows}, ${pixelSize}px)`,
+          imageRendering: "pixelated",
+        }}
+      >
+        {Array.from({ length: cols * rows }, (_, i) => {
+          const col = i % cols;
+          const row = Math.floor(i / cols);
+          const isHead = col === SNAKE_HEAD[0] && row === SNAKE_HEAD[1];
+          const isEye = col === SNAKE_EYE[0] && row === SNAKE_EYE[1];
+          const isBody = SNAKE_BODY.some(([c, r]) => c === col && r === row);
+
+          if (!isBody) {
+            return (
+              <div
+                key={`${col}-${row}`}
+                style={{ width: pixelSize, height: pixelSize }}
+              />
+            );
+          }
+
+          return (
+            <div
+              key={`${col}-${row}`}
+              style={{
+                width: pixelSize,
+                height: pixelSize,
+                backgroundColor: isEye ? eyeColor : isHead ? headColor : bodyColor,
+                boxShadow: isHead
+                  ? `0 0 ${pixelSize}px ${headColor}80`
+                  : undefined,
+              }}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function renderElement(element: CanvasElement) {
   const style: React.CSSProperties = {
     left: `${element.position?.x ?? 50}%`,
@@ -73,6 +155,8 @@ function renderElement(element: CanvasElement) {
           aria-hidden
         />
       );
+    case "pixel-snake":
+      return renderPixelSnake(element, style, anim);
     case "color":
       return null;
     default: {

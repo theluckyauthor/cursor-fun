@@ -1,49 +1,37 @@
 {
-  "version": 2,
+  "version": 3,
   "title": "Open Canvas",
   "tagline": "Scan. Suggest. Shape this site together.",
   "theme": {
-    "background": "#f3f3f7",
+    "background": "#eef5f0",
     "backgroundSecondary": "#ffffff",
-    "accent": "#6d5efc",
+    "accent": "#3dca6f",
     "text": "#1b1b22"
   },
   "elements": [
     {
-      "id": "tabula",
-      "type": "text",
-      "content": "A blank canvas",
+      "id": "pixel-snake",
+      "type": "pixel-snake",
+      "content": "",
       "position": {
         "x": 50,
-        "y": 45
+        "y": 48
       },
-      "size": 40,
-      "color": "#1b1b22",
-      "animation": "none"
+      "size": 12,
+      "color": "#3dca6f",
+      "animation": "float"
     },
     {
-      "id": "hint",
+      "id": "snake-label",
       "type": "text",
-      "content": "what should appear first?",
+      "content": "slither",
       "position": {
         "x": 50,
-        "y": 57
+        "y": 72
       },
-      "size": 16,
+      "size": 14,
       "color": "#8a8a96",
       "animation": "pulse"
-    },
-    {
-      "id": "first-mark",
-      "type": "text",
-      "content": "✦",
-      "position": {
-        "x": 50,
-        "y": 70
-      },
-      "size": 20,
-      "color": "#6d5efc",
-      "animation": "float"
     }
   ],
   "timeline": [
@@ -58,7 +46,27 @@
       "title": "Canvas reset",
       "description": "The canvas was cleared back to a blank slate.",
       "timestamp": "2026-06-26T23:10:52.190Z"
+    },
+    {
+      "version": 3,
+      "title": "Pixel snake",
+      "description": "A retro pixel snake slithered onto the canvas.",
+      "request": "A snake like pixel",
+      "contributor": "Daniel",
+      "timestamp": "2026-06-26T23:16:00.000Z"
     }
   ],
-  "contributors": []
+  "contributors": [
+    {
+      "name": "Daniel",
+      "contact": "Dan",
+      "prompts": [
+        {
+          "idea": "A snake like pixel",
+          "version": 3,
+          "signedAt": "2026-06-26T23:11:42.030Z"
+        }
+      ]
+    }
+  ]
 }

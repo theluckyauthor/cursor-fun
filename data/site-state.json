@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "title": "Open Canvas",
   "tagline": "Scan. Suggest. Shape this site together.",
   "theme": {
@@ -13,7 +13,10 @@
       "id": "tabula",
       "type": "text",
       "content": "A blank canvas",
-      "position": { "x": 50, "y": 45 },
+      "position": {
+        "x": 50,
+        "y": 45
+      },
       "size": 40,
       "color": "#1b1b22",
       "animation": "none"
@@ -22,7 +25,10 @@
       "id": "hint",
       "type": "text",
       "content": "what should appear first?",
-      "position": { "x": 50, "y": 57 },
+      "position": {
+        "x": 50,
+        "y": 57
+      },
       "size": 16,
       "color": "#8a8a96",
       "animation": "pulse"
@@ -31,7 +37,10 @@
       "id": "first-mark",
       "type": "text",
       "content": "✦",
-      "position": { "x": 50, "y": 70 },
+      "position": {
+        "x": 50,
+        "y": 70
+      },
       "size": 20,
       "color": "#6d5efc",
       "animation": "float"
@@ -43,6 +52,12 @@
       "title": "A blank canvas",
       "description": "An immaculate, empty canvas — waiting for its first idea.",
       "timestamp": "2026-06-26T10:00:00.000Z"
+    },
+    {
+      "version": 2,
+      "title": "Canvas reset",
+      "description": "The canvas was cleared back to a blank slate.",
+      "timestamp": "2026-06-26T23:10:52.190Z"
     }
   ],
   "contributors": []

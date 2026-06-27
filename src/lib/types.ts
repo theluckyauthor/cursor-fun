@@ -1,4 +1,4 @@
-export type ExperienceId = "calculator" | "scene-3d";
+export type ExperienceId = "calculator" | "scene-3d" | "dice-roller";
 
 export type ElementType =
   | "color"

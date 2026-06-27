@@ -1,8 +1,9 @@
 import type { ExperienceId } from "@/lib/types";
 import dynamic from "next/dynamic";
 import { Calculator } from "./Calculator";
+import { DiceRoller } from "./DiceRoller";
 
-const EXPERIENCE_IDS: ExperienceId[] = ["calculator", "scene-3d"];
+const EXPERIENCE_IDS: ExperienceId[] = ["calculator", "scene-3d", "dice-roller"];
 
 // Heavy (three.js) — only loaded when a 3D experience is actually on the canvas
 const Scene3D = dynamic(
@@ -46,6 +47,8 @@ export function ExperienceRenderer({
       return <Calculator width={size ?? 260} />;
     case "scene-3d":
       return <Scene3D size={size ?? 280} />;
+    case "dice-roller":
+      return <DiceRoller size={size ?? 280} />;
     default: {
       const _exhaustive: never = parsed;
       return _exhaustive;

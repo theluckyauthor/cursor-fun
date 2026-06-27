@@ -31,7 +31,7 @@ const TABS: { id: HeaderTab; label: string }[] = [
 export function HomeClient({ state, siteUrl }: HomeClientProps) {
   const [activeTab, setActiveTab] = useState<HeaderTab>("canvas");
   const [formOpen, setFormOpen] = useState(false);
-  const { newVersion, applyUpdate, dismiss } = useLiveVersion(state.version);
+  const { justShipped, dismiss } = useLiveVersion(state.version);
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden">
@@ -113,12 +113,8 @@ export function HomeClient({ state, siteUrl }: HomeClientProps) {
         )}
       </main>
 
-      {newVersion !== null && (
-        <LiveUpdateToast
-          newVersion={newVersion}
-          onApply={applyUpdate}
-          onDismiss={dismiss}
-        />
+      {justShipped !== null && (
+        <LiveUpdateToast version={justShipped} onDismiss={dismiss} />
       )}
 
       {formOpen && (

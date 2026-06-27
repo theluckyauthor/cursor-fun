@@ -1,37 +1,23 @@
 "use client";
 
 interface LiveUpdateToastProps {
-  newVersion: number;
-  onApply: () => void;
+  version: number;
   onDismiss: () => void;
 }
 
-export function LiveUpdateToast({
-  newVersion,
-  onApply,
-  onDismiss,
-}: LiveUpdateToastProps) {
+export function LiveUpdateToast({ version, onDismiss }: LiveUpdateToastProps) {
   return (
-    <div className="fixed bottom-6 left-1/2 z-40 w-[min(92vw,24rem)] -translate-x-1/2">
+    <div className="fixed bottom-6 left-1/2 z-40 w-[min(92vw,22rem)] -translate-x-1/2">
       <div className="drawer-enter flex items-center gap-3 rounded-2xl border border-canvas-accent/40 bg-canvas-surface/95 px-4 py-3 shadow-2xl backdrop-blur-md">
         <span className="text-xl" aria-hidden>
           ✦
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold text-canvas-text">
-            v{newVersion} just shipped
+            v{version} just shipped
           </p>
-          <p className="text-xs text-canvas-muted">
-            The canvas has a fresh update.
-          </p>
+          <p className="text-xs text-canvas-muted">Canvas updated automatically.</p>
         </div>
-        <button
-          type="button"
-          onClick={onApply}
-          className="shrink-0 rounded-full bg-canvas-accent px-4 py-1.5 text-xs font-bold text-white transition hover:brightness-110 active:scale-95"
-        >
-          Refresh
-        </button>
         <button
           type="button"
           onClick={onDismiss}

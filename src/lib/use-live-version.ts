@@ -3,29 +3,28 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const POLL_INTERVAL_MS = 15_000;
+const POLL_INTERVAL_MS = 10_000;
+const CONFIRM_VISIBLE_MS = 6_000;
 
 interface LiveVersion {
-  /** The newest version seen from the server, if it's ahead of the loaded one */
-  newVersion: number | null;
-  /** Re-fetch server components and clear the pending notice */
-  applyUpdate: () => void;
-  /** Dismiss the notice without refreshing */
+  /** A version that was just auto-applied, for a brief confirmation toast */
+  justShipped: number | null;
+  /** Hide the confirmation toast */
   dismiss: () => void;
 }
 
 /**
- * Polls /api/version and surfaces when a newer canvas version has deployed,
- * so visitors can see live updates without a manual reload. Free — no sockets.
+ * Polls /api/version and, when a newer canvas version has deployed,
+ * automatically refreshes the page content so visitors see live updates
+ * without touching anything. Free — no sockets, just polling + router.refresh.
  */
 export function useLiveVersion(currentVersion: number): LiveVersion {
   const router = useRouter();
-  const [newVersion, setNewVersion] = useState<number | null>(null);
+  const [justShipped, setJustShipped] = useState<number | null>(null);
   const baseline = useRef(currentVersion);
 
   useEffect(() => {
     baseline.current = currentVersion;
-    setNewVersion(null);
   }, [currentVersion]);
 
   useEffect(() => {
@@ -41,7 +40,11 @@ export function useLiveVersion(currentVersion: number): LiveVersion {
           typeof data.version === "number" &&
           data.version > baseline.current
         ) {
-          setNewVersion(data.version);
+          // Bump baseline immediately so we don't re-trigger before the
+          // refreshed server props arrive.
+          baseline.current = data.version;
+          setJustShipped(data.version);
+          router.refresh();
         }
       } catch {
         // network blips are fine — try again next tick
@@ -53,16 +56,17 @@ export function useLiveVersion(currentVersion: number): LiveVersion {
       cancelled = true;
       clearInterval(id);
     };
-  }, []);
+  }, [router]);
 
-  function applyUpdate() {
-    setNewVersion(null);
-    router.refresh();
-  }
+  useEffect(() => {
+    if (justShipped === null) return;
+    const id = setTimeout(() => setJustShipped(null), CONFIRM_VISIBLE_MS);
+    return () => clearTimeout(id);
+  }, [justShipped]);
 
   function dismiss() {
-    setNewVersion(null);
+    setJustShipped(null);
   }
 
-  return { newVersion, applyUpdate, dismiss };
+  return { justShipped, dismiss };
 }

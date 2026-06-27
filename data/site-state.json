@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "title": "Open Canvas",
   "tagline": "Rough ideas welcome. We refine, build, and tell you what shipped.",
   "theme": {
@@ -14,8 +14,8 @@
       "type": "pixel-snake",
       "content": "",
       "position": {
-        "x": 50,
-        "y": 48
+        "x": 24,
+        "y": 46
       },
       "size": 12,
       "color": "#3dca6f",
@@ -26,8 +26,31 @@
       "type": "text",
       "content": "slither",
       "position": {
-        "x": 50,
-        "y": 72
+        "x": 24,
+        "y": 70
+      },
+      "size": 14,
+      "color": "#8a8a96",
+      "animation": "pulse"
+    },
+    {
+      "id": "dice-roller",
+      "type": "experience",
+      "content": "dice-roller",
+      "position": {
+        "x": 68,
+        "y": 50
+      },
+      "size": 300,
+      "animation": "none"
+    },
+    {
+      "id": "dice-label",
+      "type": "text",
+      "content": "roll the bones 🎲",
+      "position": {
+        "x": 68,
+        "y": 84
       },
       "size": 14,
       "color": "#8a8a96",
@@ -54,6 +77,14 @@
       "request": "A snake like pixel",
       "contributor": "Daniel",
       "timestamp": "2026-06-26T23:16:00.000Z"
+    },
+    {
+      "version": 4,
+      "title": "Dice roller",
+      "description": "An interactive tabletop dice roller landed on the canvas — add up to 5 dice, watch them tumble with pip faces, and chase confetti-worthy max rolls and matching doubles.",
+      "request": "I want to have a dice roll random number feature widget",
+      "contributor": "ADa",
+      "timestamp": "2026-06-26T23:59:00.000Z"
     }
   ],
   "contributors": [
@@ -68,6 +99,20 @@
           "shippedNote": "We turned your snake idea into a floating 8-bit pixel snake with a little eye — classic arcade vibes.",
           "version": 3,
           "signedAt": "2026-06-26T23:11:42.030Z"
+        }
+      ]
+    },
+    {
+      "name": "ADa",
+      "contact": "ada@mymail.com",
+      "prompts": [
+        {
+          "idea": "I want to have a dice roll random number feature widget",
+          "refinedIdea": "An interactive tabletop dice roller: pick 1–5 dice, tap to send them tumbling, see classic pip faces plus a running total, with confetti for all-sixes max rolls and matching doubles.",
+          "shippedTitle": "Dice roller",
+          "shippedNote": "We turned your dice idea into a real tabletop roller with tumbling pip dice, an adjustable number of dice, and a live total. Roll all sixes (or matching doubles) and confetti rains down — go tempt fate!",
+          "version": 4,
+          "signedAt": "2026-06-26T23:57:11.943Z"
         }
       ]
     }
